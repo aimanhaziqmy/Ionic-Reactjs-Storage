@@ -5,6 +5,7 @@
   "dependencies": {
     "@ionic/react": "^7.0.0",
     "@ionic/react-router": "^7.0.0",
+    "@ionic/storage": "^4.0.0",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^12.6.3",
