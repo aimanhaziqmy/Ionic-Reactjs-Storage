@@ -9,6 +9,7 @@ import {
   IonItemOption,
   IonItemOptions,
   IonItemSliding,
+  IonLabel,
   IonList,
   IonPage,
   IonTitle,
@@ -20,7 +21,7 @@ import { useStorage } from "../hooks/useStorage";
 import {checkmarkDoneOutline, arrowUndoOutline, trashOutline} from 'ionicons/icons';
 
 const Home: React.FC = () => {
-  const { todos, addTodo } = useStorage();
+  const { todos, addTodo, updateTodoStatus, removeTodo } = useStorage();
   const [ task, setTask] = useState('');
   const ionList = useRef(null as any);
   
@@ -30,10 +31,12 @@ const Home: React.FC = () => {
   }
 
   const updateStatus = async(id: string, status: number) => {
+    await updateTodoStatus(id, status);
     ionList.current.closeSlidingItems();
   }
 
   const deleteTodo = async(id: string) => {
+    await removeTodo(id);
     ionList.current.closeSlidingItems();
   }
 
@@ -53,8 +56,8 @@ const Home: React.FC = () => {
         <IonList ref={ionList}>
           {todos.map((todo, key) => (
             <IonItemSliding key={key}>
-              <IonItem>
-                  {todo.task}
+              <IonItem className={todo.status === 1 ? 'done':''}>
+                <IonLabel>{todo.task} <p>{todo.status}</p></IonLabel>
               </IonItem>
               <IonItemOptions side="start">
                 <IonItemOption color="danger" onClick={() => deleteTodo(todo.id)}>

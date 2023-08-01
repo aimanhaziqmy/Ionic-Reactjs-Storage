@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Storage } from '@ionic/storage'
-
+import { Storage, Drivers } from '@ionic/storage'
+import * as CordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
 const TODOS_KEY = 'my-todos';
 
 export interface TodoItem {
@@ -18,8 +18,11 @@ export function useStorage(){
     useEffect(()=> {
         const initStorage = async () => {
             const newStore = new Storage({
-                name:"__appdb"
+                name:"__appdb",
+                driverOrder: [CordovaSQLiteDriver._driver, Drivers.IndexedDB, Drivers.LocalStorage]
             });
+            await newStore.defineDriver(CordovaSQLiteDriver);
+    
             const store = await newStore.create();
             setStore(store);
 
@@ -45,18 +48,22 @@ export function useStorage(){
     }
 
     const updateTodoStatus = async(id: string, status: number) => {
-        const todoToUpdate = todos.filter(todo => todo.id === id)[0];
-        if(todoToUpdate){
-            todoToUpdate.status = status;
-            const idx = todos.indexOf(todoToUpdate);
-            const updatedTodos = [...todos.slice(0, idx), todoToUpdate, ...todos.slice(idx+1)];
-            setTodos(updatedTodos);
-            store?.set(TODOS_KEY, updatedTodos);
-        }
+        const toUpdate = [...todos];
+        const todoToUpdate = toUpdate.filter(todo => todo.id === id)[0];
+        todoToUpdate.status = status;
+        setTodos(toUpdate);
+        return store?.set(TODOS_KEY, toUpdate);
     }
 
+    const removeTodo = async(id: string) => {
+        const toUpdate = todos.filter(todo => todo.id !== id);
+        setTodos(toUpdate);
+        return store?.set(TODOS_KEY, toUpdate);
+    }
     return {
         addTodo,
-        todos
+        todos,
+        updateTodoStatus,
+        removeTodo
     }
 }
